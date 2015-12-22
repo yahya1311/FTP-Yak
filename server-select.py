@@ -11,8 +11,6 @@ server_socket.listen(5)
 
 input_socket = [server_socket]
 
-soal = {}
-
 # fungsi cari pemain
 def cariPemain(alist, cari):
     found = 0
@@ -31,6 +29,8 @@ with open(filename) as f:
 splitsoal = ambil.split("==")
 
 # masukin soal ke dalam dictionary "soal"
+soal = {}
+
 i = 0
 while i < len(splitsoal):
     tempsoal = splitsoal[i].split("\n")
