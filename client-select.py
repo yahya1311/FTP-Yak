@@ -36,13 +36,49 @@ try:
 					sys.stdout.write('>> ')
 					break
 		elif hasil.split("\n")[0] == "soal":
-
 			print client_socket.recv(1024)[:-3]
+			message_jawaban = sys.stdin.readline()
+			client_socket.send("jawaban " + message_jawaban)
 			# print client_socket.recv(1024).split("\n")[0]
 			# while j < 5:
 			# 	print client_socket.recv(1024)
 			# 	# print "\n"
 			# 	j+=1
+			i = 1
+			# client_socket.send("kirim_jawaban")
+			# os.system('cls')
+			while True:
+				hasil = client_socket.recv(1024)
+				print ">>>>>>>" + hasil[-1:] + "<<<<<<<"
+				if hasil[-1:] == "?":
+					print hasil.split("\n")[0]
+					print hasil.split("\n")[1]
+					print "ya/tidak?"
+					sys.stdout.write('>> ')
+					break
+				elif hasil.split(" ")[0] == "Menunggu":
+					time.sleep(1)
+					client_socket.send("kirim_jawaban")
+					# os.system('cls')
+					print hasil.split("\n")[0] + " (" + str(i) + ")"
+					i+=1
+		# elif hasil.split(" ")[0] == "Menunggu_Jawaban_Pemain_Lain":
+			# i = 1
+			# client_socket.send("kirim_jawaban")
+			# # os.system('cls')
+			# while True:
+			# 	hasil = client_socket.recv(1024)
+			# 	if hasil.split(" ")[0] == "Menunggu":
+			# 		time.sleep(1)
+			# 		client_socket.send("kirim_jawaban")
+			# 		os.system('cls')
+			# 		print hasil.split("\n")[0] + " (" + str(i) + ")"
+			# 		i+=1
+			# 	else:
+			# 		print hasil.split("\n")[0]
+			# 		print "ya/tidak?"
+			# 		sys.stdout.write('>> ')
+			# 		break
 		else:
 			# sys.stdout.write(hasil)
 			print hasil
