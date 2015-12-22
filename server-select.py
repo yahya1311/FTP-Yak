@@ -33,6 +33,7 @@ MAXUSER = 3
 pemain = {}
 
 pemain[nUser] = {'id':'','username':'','state':''}
+os.system('cls')
 
 try:
     while True:
@@ -50,12 +51,19 @@ try:
                     data = sock.recv(1024)
                     data = data.split("\n")[0]
                     # print "client: " + str(sock.getpeername()) + " - Mengirim pesan: " + data
-                    print "Client: " + pemain[cek-1]['username'] + " mengirim pesan: " + data
-                    if data:
-                        sock.send("Server has recieved your messages.")
+                    # print "Pemanin: " + pemain[cek-1]['username'] + " mengirim pesan: " + data
+                    if data == "start":
+                        # sendToClient = "Pemain: " + pemain[cek-1]['username'] + " sudah siap"
+                        if MAXUSER - nUser:
+                            sendToClient = "Menunggu " + str(MAXUSER - nUser) + " pemain lain terhubung"
+                            sock.send(sendToClient)
+                        else:
+                            sock.send("Semua pemain sudah terhubung. Kuis akan segera mulai, yakin?")
+                    elif data == "ya":
+                        sock.send("Ya")
                     else:
-                        sock.close()
-                        input_socket.remove(sock)
+                        print "Pesan tidak dikenali oleh server."
+                        sock.send("Pesan tidak dikenali oleh server.")
                 # pemanin baru
                 else:
                     data = sock.recv(1024)
