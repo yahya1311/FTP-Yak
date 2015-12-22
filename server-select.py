@@ -11,6 +11,8 @@ server_socket.listen(5)
 
 input_socket = [server_socket]
 
+soal = {}
+
 # fungsi cari pemain
 def cariPemain(alist, cari):
     found = 0
@@ -21,9 +23,26 @@ def cariPemain(alist, cari):
     return found
 
 # read soal
-filename = "daftarkata.txt"
+filename = "soal.txt"
 with open(filename) as f:
-    kata = f.readlines()
+    ambil = f.read()
+
+# split soal
+splitsoal = ambil.split("==")
+
+# masukin soal ke dalam dictionary "soal"
+i = 0
+while i < len(splitsoal):
+    tempsoal = splitsoal[i].split("\n")
+    soal[i] = tempsoal[0:6]
+    #soal
+    j = 0
+    while j < 5:
+        print soal[i][j]
+        j+=1
+    #jawaban
+    print soal[i][5]    
+    i+=1
 
 # jumlah pemain
 nUser = 0
