@@ -86,7 +86,7 @@ try:
                             sock.send("Semua pemain sudah terhubung. Kuis akan segera mulai, yakin?")
                     elif data == "ya":
                         sock.send("soal")
-                        j = 0
+                        # j = 0
                         # sock.send(soal[stateSoal][1]+"\n")
                         # print soal[stateSoal]
                         sock.send(soal[stateSoal])
@@ -126,6 +126,7 @@ try:
                         if penjawab == MAXUSER:
                             stateSoal += 1
                         print "Nilai Pemain Sementara:"
+                        j = 0
                         while j < MAXUSER:
                             print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                             j+=1
