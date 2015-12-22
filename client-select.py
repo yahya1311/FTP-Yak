@@ -5,7 +5,7 @@ server_address = ('127.0.0.1', 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
 
-sys.stdout.write('>> ')
+sys.stdout.write('Masukkan username: ')
 
 try:
 	while True:
@@ -13,12 +13,11 @@ try:
 		client_socket.send(message)
 		# sys.stdout.write(client_socket.recv(1024))
 		hasil = client_socket.recv(1024)
-		if hasil:
-			print "Ketemu"
+		print hasil
+		if hasil.split(" ")[0] == "Maksimum":
+			sys.stdout.write('')
 		else:
-			print "Gak temu"
-
-		sys.stdout.write('>> ')
+			sys.stdout.write('>> ')
 
 except KeyboardInterrupt:
 	client_socket.close()

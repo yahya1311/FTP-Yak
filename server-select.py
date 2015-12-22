@@ -11,27 +11,28 @@ server_socket.listen(5)
 
 input_socket = [server_socket]
 
-def binarySearch(alist, item):
-    first = 0
-    last = len(alist)-1
-    found = False
-    while first<=last and not found:
-        midpoint = (first + last)//2
-        if alist[midpoint].split("\n")[0] == item:
-            print "Posisi = " + str(midpoint+1) + "\nKata = " + alist[midpoint].split("\n")[0]
-            print "Ketemu"
-            found = True
-        else:
-            if item < alist[midpoint]:
-                last = midpoint-1
-            else:
-                first = midpoint+1
+# fungsi cari pemain
+def cariPemain(alist, cari):
+    found = 0
+    for i in range(0,len(alist)):
+        if alist[i]['id'] == cari:
+            found = i+1
+            return found
     return found
 
-
+# read soal
 filename = "daftarkata.txt"
 with open(filename) as f:
     kata = f.readlines()
+
+# jumlah pemain
+nUser = 0
+MAXUSER = 3
+
+# list pemain
+pemain = {}
+
+pemain[nUser] = {'id':'','username':'','state':''}
 
 try:
     while True:
@@ -42,19 +43,41 @@ try:
                 client_socket, client_address = server_socket.accept()
                 input_socket.append(client_socket)        
             
-            else:               
-                data = sock.recv(1024)
-                data = data.split("\n")[0]
-                # print sock.getpeername(), data.split("\n")[0]
-                print "client: " + str(sock.getpeername()) + " - Cari kata: " + data
-                cari = data
-                hasil = binarySearch(kata, cari)
-
-                if data:
-                    sock.send(str(hasil))
+            else:
+                cek = cariPemain(pemain, sock.getpeername())             
+                # pemain lama
+                if cek:
+                    data = sock.recv(1024)
+                    data = data.split("\n")[0]
+                    # print "client: " + str(sock.getpeername()) + " - Mengirim pesan: " + data
+                    print "Client: " + pemain[cek-1]['username'] + " mengirim pesan: " + data
+                    if data:
+                        sock.send("Server has recieved your messages.")
+                    else:
+                        sock.close()
+                        input_socket.remove(sock)
+                # pemanin baru
                 else:
-                    sock.close()
-                    input_socket.remove(sock)
+                    data = sock.recv(1024)
+                    data = data.split("\n")[0]
+                    # cek max pemain
+                    if MAXUSER - nUser:
+                        pemain[nUser] = {'id':'','username':'','state':''}
+                        pemain[nUser]['id'] = sock.getpeername()
+                        pemain[nUser]['username'] = data
+                        pemain[nUser]['state'] = 1
+                        print "Pemain baru connected: " + pemain[nUser]['username'] + " (Menunggu " + str(MAXUSER - nUser-1) + " pemain lagi)"
+                        nUser+=1
+                        sendToClient = "Menunggu " + str(MAXUSER - nUser) + " pemain lain terhubung"
+                        if data:
+                            sock.send(sendToClient)
+                        else:
+                            sock.close()
+                            input_socket.remove(sock)
+                    else:
+                        sendToClient = "Maksimum pemain sudah tercapai (" + str(nUser) + " pemain)"
+                        print sendToClient
+                        sock.send(sendToClient)
 
 except KeyboardInterrupt:        
     server_socket.close()
