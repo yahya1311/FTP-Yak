@@ -35,6 +35,14 @@ try:
 					print "ya/tidak?"
 					sys.stdout.write('>> ')
 					break
+		elif hasil.split("\n")[0] == "soal":
+
+			print client_socket.recv(1024)[:-3]
+			# print client_socket.recv(1024).split("\n")[0]
+			# while j < 5:
+			# 	print client_socket.recv(1024)
+			# 	# print "\n"
+			# 	j+=1
 		else:
 			# sys.stdout.write(hasil)
 			print hasil

@@ -26,23 +26,23 @@ with open(filename) as f:
     ambil = f.read()
 
 # split soal
-splitsoal = ambil.split("==")
+soal = ambil.split("==")
 
 # masukin soal ke dalam dictionary "soal"
-soal = {}
+# soal = {}
 
-i = 0
-while i < len(splitsoal):
-    tempsoal = splitsoal[i].split("\n")
-    soal[i] = tempsoal[0:6]
+# i = 0
+# while i < len(splitsoal):
+    # tempsoal = splitsoal[i].split("\n")
+    # soal[i] = tempsoal[0:6]
     #soal
-    j = 0
-    while j < 5:
-        print soal[i][j]
-        j+=1
+    # j = 0
+    # while j < 5:
+        # print soal[i][j]
+        # j+=1
     #jawaban
-    print soal[i][5]    
-    i+=1
+    # print soal[i][5]    
+    # i+=1
 
 # jumlah pemain
 nUser = 0
@@ -51,8 +51,11 @@ MAXUSER = 3
 # list pemain
 pemain = {}
 
+# state soal
+stateSoal = 0
+
 pemain[nUser] = {'id':'','username':'','state':''}
-os.system('cls')
+# os.system('cls')
 
 try:
     while True:
@@ -79,7 +82,15 @@ try:
                         else:
                             sock.send("Semua pemain sudah terhubung. Kuis akan segera mulai, yakin?")
                     elif data == "ya":
-                        sock.send("Ya")
+                        sock.send("soal")
+                        j = 0
+                        # sock.send(soal[stateSoal][1]+"\n")
+                        # print soal[stateSoal]
+                        sock.send(soal[stateSoal])
+                        stateSoal+=1
+                        # while j < 5:
+                        #     sock.send(soal[stateSoal][j]+"\n")
+                        #     j+=1
                     else:
                         print "Pesan tidak dikenali oleh server."
                         sock.send("Pesan tidak dikenali oleh server.")
