@@ -38,10 +38,15 @@ pemain = {}
 # state soal
 stateSoal = 0
 
+# game state
+selesai = False
+
 penjawab = 0
+penjawab_selesai = 0
 
 pemain[nUser] = {'id':'','username':'','nilai':''}
-# os.system('cls')
+os.system('cls')
+print "Menunggu " + str(MAXUSER) + " pemain terhubung"
 
 try:
     while True:
@@ -67,8 +72,16 @@ try:
                     elif data == "ya":
                         sock.send("soal")
                         sock.send(soal[stateSoal])
+                        if selesai:
+                            j = 0
+                            while j < MAXUSER:
+                                pemain[j]['nilai'] = 0
+                                j+=1
+                            selesai = False
                         if penjawab == MAXUSER:
                             penjawab = 0
+                        if stateSoal == 0:
+                            penjawab_selesai = 0
                     elif data.split(" ")[0] == "jawaban":
                         jawaban_pemain = data.split(" ")[1].split("\n")[0]
                         urutan_pemain = cariPemain(pemain, sock.getpeername())
@@ -96,13 +109,36 @@ try:
                         while j < MAXUSER:
                             print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                             j+=1
-                        print "***********************"
+                        print "***********************\n"
                     elif data == "kirim_jawaban":
                         if MAXUSER - penjawab:
                             sendToClient = "Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"
                             sock.send(sendToClient)
                         else:
-                            sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n" +"Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
+                            if len(soal)-1 == stateSoal:
+                                sendToClient = "Nilai Pemain Akhir:"
+                                j = 0
+                                while j < MAXUSER:
+                                    sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
+                                    j+=1
+                                sendToClient = sendToClient + "\n***********************\nMain lagi? (ya/tidak)"
+                                sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
+                                penjawab_selesai+=1
+                            else:
+                                sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n" +"Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
+                    elif data == "selesai":
+                        print penjawab_selesai
+                        if penjawab_selesai == MAXUSER:
+                            stateSoal = 0
+                            penjawab = 0
+                            print "Nilai Pemain Akhir:"
+                            j = 0
+                            while j < MAXUSER:
+                                print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
+                                j+=1
+                            print "***********************\n"
+                            selesai = True
+                            # sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
                     else:
                         print "Pesan tidak dikenali oleh server."
                         sock.send("Pesan tidak dikenali oleh server.")

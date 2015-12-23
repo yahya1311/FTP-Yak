@@ -44,8 +44,16 @@ try:
 				hasil = client_socket.recv(1024)
 				if hasil[-1:] == "?":
 					print hasil.split("\n")[0]
+					os.system('cls')
 					print hasil.split("\n")[1]
 					print "ya/tidak?"
+					sys.stdout.write('>> ')
+					break
+				elif hasil[-1:] == ")":
+					print hasil.split("\n\n")[0]
+					os.system('cls')
+					print hasil.split("\n\n")[1]
+					client_socket.send("selesai")
 					sys.stdout.write('>> ')
 					break
 				elif hasil.split(" ")[0] == "Menunggu":
