@@ -173,7 +173,7 @@ try:
                             #     print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                             #     j+=1
                             while j<len(pemain):
-                                if pemain[j]['room'] == pencari.cariRoom(sock.getpeername()):
+                                if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
                                     print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                     # sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                     # if j==MAXUSER
