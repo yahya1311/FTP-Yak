@@ -3,6 +3,7 @@ import select
 import sys
 import os
 import pencari
+import pickle
 
 server_address = ('127.0.0.1', 5000)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,6 +13,7 @@ server_socket.listen(5)
 
 input_socket = [server_socket]
 
+# test_pickle = {'id':'','isi',''}
 
 # read soal
 filename = "soal.txt"
@@ -60,6 +62,9 @@ try:
                 input_socket.append(client_socket)        
                 
             else:
+                # sementara1 = sock.recv(1024)
+                # test_pickle = pickle.loads(sementara1)
+                # print test_pickle
                 cek = pencari.cariPemain(pemain, sock.getpeername())             
                 # print "jumlah pemain= "+str(len(pemain))
 
@@ -168,7 +173,7 @@ try:
                             #     print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                             #     j+=1
                             while j<len(pemain):
-                                if pemain[j]['room'] == cariRoom(sock.getpeername()):
+                                if pemain[j]['room'] == pencari.cariRoom(sock.getpeername()):
                                     print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                     # sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                     # if j==MAXUSER
@@ -190,8 +195,10 @@ try:
                 # pemanin baru
                 else:
 
+                    # data = sock.recv(1024)
+                    # data = data.split("\n")[0]
                     data = sock.recv(1024)
-                    data = data.split("\n")[0]
+                    data = pickle.loads(data)
                     room[jumlah_room] = {'username':''}
                     room[jumlah_room]['username'] = pencari.cariUsername(pemain, sock.getpeername())
                     # if nUser%MAXUSER == 0:
@@ -202,7 +209,7 @@ try:
                     # if (nUser-1)%MAXUSER | nUser==1:
                     pemain[nUser] = {'id':'','username':'','nilai':'','room':0}
                     pemain[nUser]['id'] = sock.getpeername()
-                    pemain[nUser]['username'] = data
+                    pemain[nUser]['username'] = data['username']
                     pemain[nUser]['nilai'] = 0
                     if nUser%MAXUSER==0:
 

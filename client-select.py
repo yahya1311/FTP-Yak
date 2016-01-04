@@ -2,17 +2,29 @@ import socket
 import sys
 import time
 import os
+import pickle
+
+id_player = 0
+flag_input = 0
+player_data = {}
+player_data = {'id_player':'','username':''}
 
 server_address = ('127.0.0.1', 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
 
-sys.stdout.write('Masukkan username: ')
-
 try:
 	while True:
-		message = sys.stdin.readline()    
-		client_socket.send(message)
+		# print len(player_data)
+		if flag_input==0:
+			player_data['id_player'] = id_player
+			player_data['username'] = raw_input('Masukkan username: ')
+			client_socket.send(pickle.dumps(player_data))
+			flag_input+=1
+		else:
+			message = sys.stdin.readline()    
+			client_socket.send(message)	
+		id_player+=1
 		hasil = client_socket.recv(1024)
 		if hasil.split(" ")[0] == "Maksimum":
 			os.system('cls')
