@@ -147,16 +147,21 @@ try:
                             if len(soal)-1 == stateSoal[pencari.cariRoom(pemain, sock.getpeername())]:
                                 sendToClient = "Nilai Pemain Akhir:"
                                 j = 0
+                                pemenang = ""
                                 while j<len(pemain):
                                     if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
                                         print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                         sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                         # if j==MAXUSER
                                     j+=1
+                                if str(pemain[0]['nilai']) > str(pemain[1]['nilai']):
+                                        pemenang = pemain[0]['username']
+                                else:
+                                        pemenang = pemain[1]['username']
                                 # while j < MAXUSER:
                                 #     sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                 #     j+=1
-                                sendToClient = sendToClient + "\n***********************\nMain lagi? (ya/tidak)"
+                                sendToClient = sendToClient + "\nPemenang: " + pemenang + "\n***********************\nMain lagi? (ya/tidak)"
                                 sock.send("Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
                                 penjawab_selesai+=1
                             else:
