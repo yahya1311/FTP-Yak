@@ -148,16 +148,36 @@ try:
                                 sendToClient = "Nilai Pemain Akhir:"
                                 j = 0
                                 pemenang = ""
+                                nilai_pemenang = "-1"
                                 while j<len(pemain):
                                     if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
                                         print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
+                                        if nilai_pemenang < str(pemain[j]['nilai']):
+                                            nilai_pemenang = str(pemain[j]['nilai'])
+                                            pemenang = str(pemain[j]['username'])
+                                        if nilai_pemenang == str(pemain[j]['nilai']):
+                                            pass
                                         sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                         # if j==MAXUSER
                                     j+=1
-                                if str(pemain[0]['nilai']) > str(pemain[1]['nilai']):
-                                        pemenang = pemain[0]['username']
-                                else:
-                                        pemenang = pemain[1]['username']
+                                i=0
+                                draw = 0
+                                while i<len(pemain):
+                                    if pemain[i]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
+                                        j = i+1
+                                        while j<len(pemain):
+                                            if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
+                                                if pemain[i]['nilai'] == pemain[j]['nilai']:
+                                                    draw+=1
+                                            j+=1
+                                    i+=1
+                                if draw == MAXUSER-1:
+                                    pemenang = "DRAW"
+
+                                # if str(pemain[0]['nilai']) > str(pemain[1]['nilai']):
+                                #         pemenang = pemain[0]['username']
+                                # else:
+                                #         pemenang = pemain[1]['username']
                                 # while j < MAXUSER:
                                 #     sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                 #     j+=1
