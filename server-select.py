@@ -2,6 +2,7 @@ import socket
 import select
 import sys
 import os
+import pencari
 
 server_address = ('127.0.0.1', 5000)
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -11,24 +12,6 @@ server_socket.listen(5)
 
 input_socket = [server_socket]
 
-# fungsi cari pemain
-def cariPemain(cari):
-    found = 0
-    for i in range(0,len(pemain)):
-        if pemain[i]['id'] == cari:
-            found = i+1
-            return found
-    return found
-
-def cariUsername(idPemain):
-    for i in range(0,len(pemain)):
-        if pemain[i]['id'] == idPemain:
-            return pemain[i]['username']
-
-def cariRoom(idPemain):
-    for i in range(0,len(pemain)):
-        if pemain[i]['id'] == idPemain:
-            return pemain[i]['room']    
 
 # read soal
 filename = "soal.txt"
@@ -52,8 +35,10 @@ stateSoal = []
 # game state
 selesai = False
 
-penjawab = 0
+#penjawab = 0
+penjawab = []
 penjawab_selesai = 0
+# penjawab_selesai = []
 
 pemain[nUser] = {'id':'','username':'','nilai':'','room':0}
 
@@ -75,8 +60,8 @@ try:
                 input_socket.append(client_socket)        
                 
             else:
-                cek = cariPemain(sock.getpeername())             
-                print "jumlah pemain= "+str(len(pemain))
+                cek = pencari.cariPemain(pemain, sock.getpeername())             
+                # print "jumlah pemain= "+str(len(pemain))
 
                 # pemain lama
                 if cek:
@@ -92,69 +77,73 @@ try:
                             sock.send(sendToClient)
                         else:
                             # print "STATE SOAL>>>>>  " + str(stateSoal)
+                            # if len(stateSoal) < len(room):
                             if len(stateSoal) < len(room):
-                                stateSoal.append(0)    
+                                stateSoal.append(0)
+                                penjawab.append(0)   
                             sock.send("Semua pemain sudah terhubung. Kuis akan segera mulai, yakin?")
                     elif data == "ya":
                         sock.send("soal")
-                        sock.send(soal[stateSoal[cariRoom(sock.getpeername())]])
+                        sock.send(soal[stateSoal[pencari.cariRoom(pemain, sock.getpeername())]])
                         if selesai:
                             j = 0
                             while j < MAXUSER:
                                 pemain[j]['nilai'] = 0
                                 j+=1
                             selesai = False
-                        if penjawab == MAXUSER:
-                            penjawab = 0
+                        if penjawab[pencari.cariRoom(pemain, sock.getpeername())] == MAXUSER:
+                            penjawab[pencari.cariRoom(pemain, sock.getpeername())] = 0
                         if stateSoal == 0:
                             penjawab_selesai = 0
                     elif data.split(" ")[0] == "jawaban":
                         jawaban_pemain = data.split(" ")[1].split("\n")[0]
-                        urutan_pemain = cariPemain(sock.getpeername())
-                        if jawaban_pemain == soal[stateSoal[cariRoom(sock.getpeername())]][-2:-1]:
-                            print "jawaban_pemain " + str(penjawab + 1) + " benar"
+                        urutan_pemain = pencari.cariPemain(pemain, sock.getpeername())
+                        if jawaban_pemain == soal[stateSoal[pencari.cariRoom(pemain, sock.getpeername())]][-2:-1]:
+                            print "jawaban_pemain " + str(penjawab[pencari.cariRoom(pemain, sock.getpeername())] + 1) + " benar"
                             pemain[urutan_pemain-1]['nilai'] += 1
-                            if MAXUSER - penjawab:
-                                sendToClient = "Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"
+                            if MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]:
+                                sendToClient = "Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"
                                 sock.send(sendToClient)
-                            else:
-                                print "STATE SOAL>>>>>  " + str(stateSoal)
-                                sock.send("Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
+                            # else:
+                            #     print "STATE SOAL>>>>>  " + str(stateSoal)
+                            #     print "PENJAWAB>>>>>  " + str(penjawab)
+                            #     sock.send("Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
                         else:
-                            print "jawaban_pemain " + str(penjawab + 1) + " salah"
+                            print "jawaban_pemain " + str(penjawab[pencari.cariRoom(pemain, sock.getpeername())] + 1) + " salah"
                             pemain[urutan_pemain-1]['nilai'] += 0
-                            if MAXUSER - penjawab:
-                                sendToClient = "Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"
+                            if MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]:
+                                sendToClient = "Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"
                                 sock.send(sendToClient)
                             else:
-                                print "STATE SOAL>>>>>  " + str(stateSoal)
+                                # print "STATE SOAL>>>>>  " + str(stateSoal)
+                                # print "PENJAWAB>>>>>  " + str(penjawab)
                                 sock.send("Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
-                        penjawab += 1
-                        if penjawab == MAXUSER:
-                            stateSoal[cariRoom(sock.getpeername())] += 1
+                        penjawab[pencari.cariRoom(pemain, sock.getpeername())] += 1
+                        if penjawab[pencari.cariRoom(pemain, sock.getpeername())] == MAXUSER:
+                            stateSoal[pencari.cariRoom(pemain, sock.getpeername())] += 1
                         print "Nilai Pemain Sementara:"
                         j = 0
                         # while j < MAXUSER:
                         #     print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                         #     j+=1
                         while j<len(pemain):
-                            if pemain[j]['room'] == cariRoom(sock.getpeername()):
+                            if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
                                 print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                 # if j==MAXUSER
                             j+=1
                         print "***********************\n"
                     elif data == "kirim_jawaban":
-                        if MAXUSER - penjawab:
-                            sendToClient = "Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"
-                            print cariUsername(sock.getpeername()) + "room yang digunakan= " + str(cariRoom(sock.getpeername()))
+                        if MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]:
+                            sendToClient = "Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"
+                            # print pencari.cariUsername(pemain, sock.getpeername()) + "room yang digunakan= " + str(pencari.cariRoom(pemain, sock.getpeername()))
                             sock.send(sendToClient)
                         else:
                             # print "UDAH SAMPAI DI AKHIR SOAL "
-                            if len(soal)-1 == stateSoal[cariRoom(sock.getpeername())]:
+                            if len(soal)-1 == stateSoal[pencari.cariRoom(pemain, sock.getpeername())]:
                                 sendToClient = "Nilai Pemain Akhir:"
                                 j = 0
                                 while j<len(pemain):
-                                    if pemain[j]['room'] == cariRoom(sock.getpeername()):
+                                    if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
                                         print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                         sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                         # if j==MAXUSER
@@ -163,23 +152,31 @@ try:
                                 #     sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                 #     j+=1
                                 sendToClient = sendToClient + "\n***********************\nMain lagi? (ya/tidak)"
-                                sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
+                                sock.send("Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
                                 penjawab_selesai+=1
                             else:
-                                sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n" +"Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
+                                sock.send("Menunggu " + str(MAXUSER - penjawab[pencari.cariRoom(pemain, sock.getpeername())]) + " pemain menjawab"+ "\n" +"Semua pemain sudah menjawab soal. Lanjut soal selanjutnya?")
                     elif data == "selesai":
-                        print penjawab_selesai
-                        if penjawab_selesai == MAXUSER:
-                            stateSoal[cariRoom(sock.getpeername())] = 0
-                            penjawab = 0
+                        # print penjawab_selesai
+                        if penjawab_selesai%MAXUSER == 0:
+                            stateSoal[pencari.cariRoom(pemain, sock.getpeername())] = 0
+                            penjawab[pencari.cariRoom(pemain, sock.getpeername())] = 0
+                            print "\n************************\n"
                             print "Nilai Pemain Akhir:"
                             j = 0
                             while j < MAXUSER:
                                 print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
                                 j+=1
-                            print "***********************\n"
+                            # while j<len(pemain):
+                            #         if pemain[j]['room'] == pencari.cariRoom(pemain, sock.getpeername()):
+                            #             print pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
+                            #             # sendToClient = sendToClient + "\n" + pemain[j]['username'] + " : " + str(pemain[j]['nilai'])
+                            #             # if j==MAXUSER
+                            #         j+=1
+                            print "\n************************\n"
                             # stateSoal = []
-                            print "STATE SOAL>>>>>  " + str(stateSoal)
+                            # print "STATE SOAL>>>>>  " + str(stateSoal)
+                            # print "PENJAWAB>>>>>  " + str(penjawab)
                             selesai = True
                             # sock.send("Menunggu " + str(MAXUSER - penjawab) + " pemain menjawab"+ "\n\n" +"Permainan selesai\n"+sendToClient)
                     else:
@@ -191,12 +188,12 @@ try:
                     data = sock.recv(1024)
                     data = data.split("\n")[0]
                     room[jumlah_room] = {'username':''}
-                    room[jumlah_room]['username'] = cariUsername(sock.getpeername())
+                    room[jumlah_room]['username'] = pencari.cariUsername(pemain, sock.getpeername())
                     # if nUser%MAXUSER == 0:
                         # jumlah_room += 1
-                    print "jumlah room >>>>>>" + str(jumlah_room)
+                    # print "jumlah room >>>>>>" + str(jumlah_room)
                     # cek max pemain
-                    print "nUser%MAXUSER = " + str(nUser%MAXUSER)
+                    # print "nUser%MAXUSER = " + str(nUser%MAXUSER)
                     # if (nUser-1)%MAXUSER | nUser==1:
                     pemain[nUser] = {'id':'','username':'','nilai':'','room':0}
                     pemain[nUser]['id'] = sock.getpeername()
@@ -217,12 +214,12 @@ try:
                     else:
                         sock.close()
                         input_socket.remove(sock)
-                    print "nUser >>>>  " + str(nUser)
+                    # print "nUser >>>>  " + str(nUser)
                     if (nUser+1)%MAXUSER == 1:
                         jumlah_room += 1
                         # print "JUMLAH ROOM >>>>  " + str(jumlah_room)
                         pemain[nUser]['room'] = jumlah_room
-                        print "room" + str(pemain[nUser]['room'])
+                        # print "room" + str(pemain[nUser]['room'])
                     else:
                         # print "JUMLAH ROOM >>>>  " + str(jumlah_room)
                         pemain[nUser]['room'] = jumlah_room
@@ -230,7 +227,7 @@ try:
                         # sendToClient = "Maksimum pemain sudah tercapai (" + str(nUser) + " pemain)"
                         # print sendToClient
                         # sock.send(sendToClient)
-                        print "room" + str(pemain[nUser]['room'])
+                        # print "room" + str(pemain[nUser]['room'])
                     nUser+=1
 
 except KeyboardInterrupt:        
