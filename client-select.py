@@ -35,8 +35,6 @@ def uptime():
 try:
 	thread.start_new_thread(uptime,())
 	while True:
-		# result_uptime+=my_uptime
-		# print len(player_data)
 		if flag_input==0:
 			player_data['id_player'] = id_player
 			player_data['username'] = raw_input('Masukkan username: ')
